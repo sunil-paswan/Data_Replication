@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: symmetricds-pro-initdb
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: initdb
+  template:
+    metadata:
+      labels:
+        app: initdb
+      namespace: default
+    spec:
+      containers:
+      - image: gcr.io/radical-patronum/symmetricds-pro:v1
+        imagePullPolicy: IfNotPresent
+        name: symmetricds-pro-v
+        ports:
+        - containerPort: 31415
+          name: setnamehere
+          protocol: TCP
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: symmetricds-pro-initdb-service
+  namespace: default
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 31415
+  selector:
+    app: initdb
+  sessionAffinity: None
+  type: LoadBalancer
